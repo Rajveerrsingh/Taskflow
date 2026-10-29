@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TaskFlow — Rajveer Singh</title>
+    <meta
+      name="description"
+      content="TaskFlow is a personal issue tracker with an Express API, validation, and MongoDB or in-memory storage."
+    />
+    <meta name="theme-color" content="#1f1b17" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#tasks">Skip to tasks</a>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="22" height="22">
+              <path
+                d="M6 16.5 12 22.5 26 8.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <div>
+            <p class="brand-name">TaskFlow</p>
+            <p class="brand-sub">Issue tracker</p>
+          </div>
+        </div>
+
+        <nav class="side-nav" aria-label="Queue filters">
+          <p class="side-label">Status</p>
+          <div id="status-filters" class="filter-list"></div>
+          <p class="side-label">Priority</p>
+          <div id="priority-filters" class="filter-list priority-list"></div>
+        </nav>
+
+        <div class="side-footer">
+          <p class="storage" id="storage-label" data-mode="unknown">Starting</p>
+          <p class="credit">Built by <strong>Rajveer Singh</strong></p>
+          <button type="button" class="text-button" id="about-open">How this app is built</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Bookstore inventory queue</p>
+            <h1 id="view-title">All tasks</h1>
+            <p class="lede" id="view-lede">Loading the queue…</p>
+          </div>
+          <button type="button" class="button primary" id="new-task">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path d="M8 2.5v11M2.5 8h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            New task
+          </button>
+        </header>
+
+        <div class="toolbar">
+          <label class="search">
+            <span class="sr-only">Search tasks</span>
+            <svg class="search-icon" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+              <circle cx="8.5" cy="8.5" r="5.25" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <path d="M12.5 12.5 17 17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            <input id="search" type="search" placeholder="Search title or description" autocomplete="off" />
+          </label>
+          <label class="sort">
+            <span class="sr-only">Sort tasks</span>
+            <select id="sort">
+              <option value="dueDate:asc">Due date, soonest</option>
+              <option value="dueDate:desc">Due date, latest</option>
+              <option value="priority:desc">Priority, highest</option>
+              <option value="priority:asc">Priority, lowest</option>
+              <option value="createdAt:desc">Newest first</option>
+              <option value="title:asc">Title, A–Z</option>
+            </select>
+          </label>
+          <div class="view-toggle" role="group" aria-label="Layout">
+            <button type="button" id="view-board" aria-pressed="true">Board</button>
+            <button type="button" id="view-list" aria-pressed="false">List</button>
+          </div>
+        </div>
+
+        <section id="tasks" aria-live="polite" aria-busy="true">
+          <p class="loading-copy">Loading the queue…</p>
+        </section>
+        <p class="footnote" id="footnote"></p>
+      </main>
+    </div>
+
+    <dialog id="task-dialog" aria-labelledby="dialog-title">
+      <form id="task-form" class="dialog-card" novalidate>
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Task</p>
+            <h2 id="dialog-title">New task</h2>
+          </div>
+          <button type="button" class="icon-button" id="dialog-close" aria-label="Close dialog">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path d="M3.5 3.5 12.5 12.5M12.5 3.5 3.5 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <p id="form-error" class="form-error" hidden></p>
+        <label class="field">
+          <span>Title</span>
+          <input id="task-title" name="title" type="text" maxlength="160" autocomplete="off" />
+          <small data-error-for="title"></small>
+        </label>
+        <label class="field">
+          <span>Description</span>
+          <textarea id="task-description" name="description" rows="4" maxlength="2000"></textarea>
+          <small data-error-for="description"></small>
+        </label>
+        <div class="form-row">
+          <label class="field">
+            <span>Status</span>
+            <select id="task-status" name="status">
+              <option value="todo" selected>To do</option>
+              <option value="in_progress">In progress</option>
+              <option value="done">Done</option>
+            </select>
+            <small data-error-for="status"></small>
+          </label>
+          <label class="field">
+            <span>Priority</span>
+            <select id="task-priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+            <small data-error-for="priority"></small>
+          </label>
+          <label class="field">
+            <span>Due date</span>
+            <input id="task-due" name="dueDate" type="date" />
+            <small data-error-for="dueDate"></small>
+          </label>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="button ghost" id="form-cancel">Cancel</button>
+          <button type="submit" class="button primary" id="dialog-submit">Create task</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="delete-dialog" aria-labelledby="delete-title">
+      <div class="dialog-card">
+        <h2 id="delete-title">Delete this task?</h2>
+        <p id="delete-copy" class="delete-copy"></p>
+        <p class="dialog-note">This sends DELETE and removes the task from the store. There is no trash bin.</p>
+        <div class="dialog-actions">
+          <button type="button" class="button ghost" id="delete-cancel">Keep task</button>
+          <button type="button" class="button danger" id="delete-confirm">Delete task</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-card">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Portfolio note</p>
+            <h2 id="about-title">How this app is built</h2>
+          </div>
+          <button type="button" class="icon-button" id="about-close" aria-label="Close dialog">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path d="M3.5 3.5 12.5 12.5M12.5 3.5 3.5 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <p class="dialog-note">
+          TaskFlow is a small issue tracker. The page never reads the database. Every change goes through
+          <code>/api/tasks</code>.
+        </p>
+        <ul class="about-list">
+          <li>Express routes call a controller, then a service, then a repository.</li>
+          <li>Zod checks the body first and returns a field error the form can show.</li>
+          <li>One error handler shapes validation, not found, and unexpected failures.</li>
+          <li>MongoDB is used when <code>MONGODB_URI</code> is set. Otherwise the same repository contract runs in memory.</li>
+          <li>There is no login. The router is the one place a session check would go.</li>
+        </ul>
+        <p class="dialog-note" id="about-storage"></p>
+        <p class="dialog-note">The nine opening tasks are seed data for a bookstore inventory queue. They load only when the store is empty.</p>
+        <p class="credit-line">Built by Rajveer Singh · press <kbd>N</kbd> to add a task</p>
+      </div>
+    </dialog>
+
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+    <noscript>
+      <p class="noscript">TaskFlow needs JavaScript enabled so this page can call the API.</p>
+    </noscript>
+    <script src="/js/app.js" type="module"></script>
+  </body>
+</html>
