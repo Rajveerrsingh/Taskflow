@@ -2,6 +2,8 @@
 
 Personal issue tracker by **Rajveer Singh**, built as a junior software developer portfolio project.
 
+Source: [https://github.com/Rajveerrsingh/Taskflow](https://github.com/Rajveerrsingh/Taskflow)
+
 The page is a board. The API is the product. The browser never touches the database: every create, edit, move, and delete is a JSON request, and the screen reloads from the response. That split is the part I would walk through in an interview.
 
 It runs with no database installed. Set `MONGODB_URI` when you want MongoDB instead.
@@ -11,6 +13,8 @@ It runs with no database installed. Set `MONGODB_URI` when you want MongoDB inst
 Requires Node.js 20 or newer.
 
 ```bash
+git clone https://github.com/Rajveerrsingh/Taskflow.git
+cd Taskflow
 npm install
 npm start
 ```
