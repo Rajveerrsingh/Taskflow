@@ -1,0 +1,19 @@
+# Local MongoDB for TaskFlow. The app does not require this file:
+# with no MONGODB_URI, `npm start` uses an in-memory store.
+
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - taskflow-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  taskflow-data:
