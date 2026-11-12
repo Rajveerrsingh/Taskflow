@@ -194,6 +194,27 @@ p, h1, h2, h3 { margin: 0; }
 }
 
 .storage[data-mode="mongodb"]::before { background: #3dbe8b; }
+.storage[data-mode="demo"]::before { background: #7aa7e8; }
+
+.demo-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border: 1px solid rgba(31, 27, 23, 0.14);
+  border-radius: 10px;
+  background: #f3ecdf;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.demo-banner[hidden] { display: none; }
+.demo-banner p { margin: 0; }
+.demo-banner a { color: inherit; }
+.demo-banner .text-button { color: inherit; text-decoration: underline; }
 
 .credit, .credit-line {
   color: var(--sidebar-muted);

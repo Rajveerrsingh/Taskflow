@@ -109,13 +109,29 @@ function isOverdue(task) {
   return Boolean(task.dueDate) && task.status !== "done" && task.dueDate < utcToday();
 }
 
+// The GitHub Pages build adds <meta name="taskflow-mode" content="demo">.
+// There is no server there, so requests go to the same API logic bundled
+// for the browser (src/demo/browserApi.js) and are saved in localStorage.
+const DEMO_MODE = document.querySelector('meta[name="taskflow-mode"]')?.content === "demo";
+let demoApi;
+
+async function demoRequest(path, options) {
+  demoApi ??= await import("./demo-api.js");
+  const { status, body } = await demoApi.handle(options.method || "GET", path, options.body);
+  return {
+    status,
+    ok: status >= 200 && status < 300,
+    json: async () => body,
+  };
+}
+
 async function api(path, options = {}) {
   const headers = { Accept: "application/json" };
   if (options.body) headers["Content-Type"] = "application/json";
 
   let response;
   try {
-    response = await fetch(path, { ...options, headers });
+    response = DEMO_MODE ? await demoRequest(path, options) : await fetch(path, { ...options, headers });
   } catch {
     const error = new Error("Could not reach the server. Is it still running?");
     error.details = [];
@@ -271,6 +287,12 @@ function renderStorage() {
     label.textContent = "In memory";
     about.textContent = "This server is using the in-memory store. Tasks last until the process stops.";
     footnote.textContent = "Saved in memory for this server process. Set MONGODB_URI when you want them to persist.";
+  } else if (state.storage === "demo") {
+    label.dataset.mode = "demo";
+    label.textContent = "Demo mode";
+    about.textContent =
+      "This is the static demo on GitHub Pages. There is no server here: the same validation and service code runs in your browser, and tasks are saved in this browser's localStorage.";
+    footnote.textContent = "Demo mode: saved in this browser only. Run it locally for the Express API.";
   } else {
     label.dataset.mode = "unknown";
     label.textContent = "Starting";
@@ -692,6 +714,15 @@ function init() {
   tasksRoot.addEventListener("click", onTaskClick);
   tasksRoot.addEventListener("change", onTaskChange);
   document.addEventListener("keydown", onKeydown);
+
+  if (DEMO_MODE) {
+    document.getElementById("demo-banner").hidden = false;
+    document.getElementById("demo-reset").addEventListener("click", async () => {
+      demoApi ??= await import("./demo-api.js");
+      await demoApi.resetDemo();
+      loadTasks({ quiet: true });
+    });
+  }
 
   render();
   loadTasks();

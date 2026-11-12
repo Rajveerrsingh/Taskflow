@@ -9,14 +9,14 @@
       content="TaskFlow is a personal issue tracker with an Express API, validation, and MongoDB or in-memory storage."
     />
     <meta name="theme-color" content="#1f1b17" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500..700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
     <a class="skip" href="#tasks">Skip to tasks</a>
@@ -56,6 +56,14 @@
       </aside>
 
       <main class="main">
+        <div class="demo-banner" id="demo-banner" role="note" hidden>
+          <p>
+            <strong>Demo mode.</strong> This static copy has no server. The API's validation and service code runs in
+            your browser and saves to localStorage. <a href="https://github.com/Rajveerrsingh/Taskflow#try-it">Run it locally</a>
+            for the Express API.
+          </p>
+          <button type="button" class="text-button" id="demo-reset">Reset demo data</button>
+        </div>
         <header class="topbar">
           <div>
             <p class="eyebrow">Bookstore inventory queue</p>
@@ -205,6 +213,6 @@
     <noscript>
       <p class="noscript">TaskFlow needs JavaScript enabled so this page can call the API.</p>
     </noscript>
-    <script src="/js/app.js" type="module"></script>
+    <script src="js/app.js" type="module"></script>
   </body>
 </html>

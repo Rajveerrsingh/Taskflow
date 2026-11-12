@@ -2,7 +2,12 @@
 
 Personal issue tracker by **Rajveer Singh**, built as a junior software developer portfolio project.
 
-Source: [https://github.com/Rajveerrsingh/Taskflow](https://github.com/Rajveerrsingh/Taskflow)
+**Live demo:** [rajveerrsingh.github.io/Taskflow](https://rajveerrsingh.github.io/Taskflow/) (demo mode, see below)
+Source: [github.com/Rajveerrsingh/Taskflow](https://github.com/Rajveerrsingh/Taskflow)
+
+**Stack:** Node.js 20, Express 4, Zod, Mongoose / MongoDB (optional), vanilla JS front end, `node:test` + Supertest, GitHub Actions.
+
+![TaskFlow board with three columns and the sample bookstore queue](docs/screenshots/board.png)
 
 The page is a board. The API is the product. The browser never touches the database: every create, edit, move, and delete is a JSON request, and the screen reloads from the response. That split is the part I would walk through in an interview.
 
@@ -27,13 +32,21 @@ The first launch loads nine sample tasks into memory. They describe a bookstore 
 npm test
 ```
 
-Eighteen API tests. They use the in-memory repository, so they do not need Docker or MongoDB.
+Eighteen API tests plus three for the browser demo module. They use the in-memory repository, so they do not need Docker or MongoDB.
 
 While changing code:
 
 ```bash
 npm run dev
 ```
+
+## Live demo (demo mode)
+
+GitHub Pages only serves static files, so the hosted copy has no Express server and no database. `npm run build:demo` copies `public/` into `dist/` and bundles `src/demo/browserApi.js` with esbuild. That module runs the same Zod schemas and `TaskService` the API uses, on top of the in-memory repository, and saves tasks to `localStorage` in your browser. The page shows a "Demo mode" banner and has a reset button.
+
+What the demo does not show: real HTTP requests, Helmet headers, or MongoDB. For those, run it locally as above.
+
+The built `dist/` folder is published on the `gh-pages` branch.
 
 ## Use MongoDB
 
@@ -156,8 +169,11 @@ src/
   validators/taskSchemas.js request checks
   middleware/               async errors, 404, the error handler
   domain/task.js            statuses, priorities, response shape
+  demo/browserApi.js        the same service and schemas, run in the browser for the static demo
 public/                     the page: HTML, CSS, one JS module
+scripts/build-demo.mjs      builds the GitHub Pages copy into dist/
 tests/api.test.js           supertest against the memory store
+tests/demo.test.js          the browser demo module
 ```
 
 Express 4 does not forward a rejected promise to the error handler. Controllers are wrapped so a thrown `AppError` still becomes JSON. That wrapper is `src/middleware/asyncHandler.js`.
@@ -223,7 +239,8 @@ The same board on a narrow screen. Status filters scroll, and the columns snap s
 | --- | --- |
 | `npm start` | API and page on port `4721`, or `PORT` |
 | `npm run dev` | Same, restarting when files change |
-| `npm test` | API tests |
+| `npm test` | API and demo tests |
+| `npm run build:demo` | Static demo for GitHub Pages in `dist/` |
 | `npm run seed` | Replace MongoDB tasks with the sample queue |
 | `docker compose up -d` | Local MongoDB 7 on port `27017` |
 
